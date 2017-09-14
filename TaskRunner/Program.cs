@@ -26,6 +26,12 @@ namespace TaskRunner
 				var switches = new Switches(args);
 				switches.Parse();
 
+				if (switches.ConfigureEmail)
+					WriteRegistrySettings(switches.EmailSettings);
+
+				if (!switches.TargetCommandLine.Any())
+					return 0;
+
 				var emailSettings = GetEmailSettings(switches.EmailSettings);
 
 				var result = RunProcess(switches.TargetCommandLine);
@@ -205,6 +211,19 @@ namespace TaskRunner
 			}
 
 			return new EmailSettings(host, from, to);
+		}
+
+		private static void WriteRegistrySettings(EmailSettings settings)
+		{
+			using (var key = Registry.CurrentUser.CreateSubKey(RegistryKeyPath))
+			{
+				if (settings.Host != null)
+					key.SetValue("Host", settings.Host, RegistryValueKind.String);
+				if (settings.From != null)
+					key.SetValue("From", settings.From.ToString(), RegistryValueKind.String);
+				if (settings.To != null)
+					key.SetValue("To", settings.To.ToString(), RegistryValueKind.String);
+			}
 		}
 
 		private static void ValidateEmailSettings(EmailSettings emailSettings)

@@ -45,10 +45,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLineArgumentException.cs" />
+    <Compile Include="Email.cs" />
     <Compile Include="EmailSettings.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunResult.cs" />
+    <Compile Include="Switches.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

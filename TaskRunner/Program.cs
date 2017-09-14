@@ -23,18 +23,15 @@ namespace TaskRunner
 		{
 			try
 			{
-				int targetArg = 0;
-				var cmdLineEmailSettings = ParseSwitches(args, ref targetArg);
-				var emailSettings = GetEmailSettings(cmdLineEmailSettings);
+				var switches = new Switches(args);
+				switches.Parse();
 
-				if (targetArg >= args.Length || targetArg == 0)
-					throw new CommandLineArgumentException("No program to run was specified");
+				var emailSettings = GetEmailSettings(switches.EmailSettings);
 
-				var targetArgs = args.Skip(targetArg);
-				var result = RunProcess(targetArgs);
+				var result = RunProcess(switches.TargetCommandLine);
 
 				if (result.ExitCode != 0 || result.Output.Length > 0)
-					SendEmail(emailSettings, result, targetArgs);
+					SendEmail(emailSettings, result, switches.TargetCommandLine);
 
 				return result.ExitCode;
 			}
@@ -153,66 +150,6 @@ namespace TaskRunner
 			}
 		}
 
-		private static EmailSettings ParseSwitches(string[] args, ref int nextArgIndex)
-		{
-			string host = null;
-			MailAddress from = null;
-			MailAddress to = null;
-
-			for (int i = nextArgIndex; i < args.Length; i++)
-			{
-				string arg = args[i];
-
-				if (!arg.StartsWith("-"))
-				{
-					throw new CommandLineArgumentException($"Unrecognised switch: \"{arg}\"");
-				}
-				else if (arg == "--")
-				{
-					nextArgIndex = i + 1;
-					break;
-				}
-
-				if (i + 1 >= args.Length)
-					throw new CommandLineArgumentException($"Missing argument to {arg} switch");
-
-				string nextArg = args[++i];
-				switch (arg)
-				{
-					case "-h":
-					case "--host":
-						host = nextArg;
-						break;
-					case "-f":
-					case "--from":
-						if (!TryParseAddress(nextArg, out from))
-							throw new CommandLineArgumentException($"Invalid 'from' e-mail address: \"{nextArg}\"");
-						break;
-					case "-t":
-					case "--to":
-						if (!TryParseAddress(nextArg, out to))
-							throw new CommandLineArgumentException($"Invalid 'to' e-mail address: \"{nextArg}\"");
-						break;
-				}
-			}
-
-			return new EmailSettings(host: host, from: from, to: to);
-		}
-
-		private static bool TryParseAddress(string address, out MailAddress mailAddress)
-		{
-			try
-			{
-				mailAddress = new MailAddress(address);
-				return true;
-			}
-			catch (FormatException)
-			{
-				mailAddress = null;
-				return false;
-			}
-		}
-
 		private static EmailSettings GetEmailSettings(EmailSettings cmdLineSettings)
 		{
 			var systemSettings = GetSystemSettings();
@@ -250,10 +187,10 @@ namespace TaskRunner
 						host = key.GetValue("Host", null) as string;
 
 						if (key.GetValue("From", null) is string fromString)
-							TryParseAddress(fromString, out from);
+							Email.TryParseAddress(fromString, out from);
 
 						if (key.GetValue("To", null) is string toString)
-							TryParseAddress(toString, out to);
+							Email.TryParseAddress(toString, out to);
 					}
 				}
 			}

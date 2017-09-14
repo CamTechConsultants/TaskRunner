@@ -52,7 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmailSettingsTest.cs" />
+    <Compile Include="EmailTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SwitchesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

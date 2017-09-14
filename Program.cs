@@ -7,21 +7,25 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Win32;
 
 namespace TaskRunner
 {
 	class Program
 	{
+		private const string RegistryKeyPath = @"SOFTWARE\CTC\TaskRunner";
+
 		static int Main(string[] args)
 		{
 			try
 			{
 				int targetArg = 0;
-				var emailSettings = ParseSwitches(args, ref targetArg);
-				ValidateEmailSettings(emailSettings);
+				var cmdLineEmailSettings = ParseSwitches(args, ref targetArg);
+				var emailSettings = GetEmailSettings(cmdLineEmailSettings);
 
 				if (targetArg >= args.Length || targetArg == 0)
 					throw new CommandLineArgumentException("No program to run was specified");
@@ -181,29 +185,89 @@ namespace TaskRunner
 						break;
 					case "-f":
 					case "--from":
-						from = ParseAddress(nextArg);
+						if (!TryParseAddress(nextArg, out from))
+							throw new CommandLineArgumentException($"Invalid 'from' e-mail address: \"{nextArg}\"");
 						break;
 					case "-t":
 					case "--to":
-						to = ParseAddress(nextArg);
+						if (!TryParseAddress(nextArg, out to))
+							throw new CommandLineArgumentException($"Invalid 'to' e-mail address: \"{nextArg}\"");
 						break;
 				}
 			}
 
 			return new EmailSettings(host: host, from: from, to: to);
+		}
 
-
-			MailAddress ParseAddress(string address)
+		private static bool TryParseAddress(string address, out MailAddress mailAddress)
+		{
+			try
 			{
-				try
+				mailAddress = new MailAddress(address);
+				return true;
+			}
+			catch (FormatException)
+			{
+				mailAddress = null;
+				return false;
+			}
+		}
+
+		private static EmailSettings GetEmailSettings(EmailSettings cmdLineSettings)
+		{
+			var systemSettings = GetSystemSettings();
+			var currentUserRegistrySettings = GetRegistrySettings(Registry.CurrentUser);
+			var localMachineRegistrySettings = GetRegistrySettings(Registry.LocalMachine);
+
+			var settings = systemSettings
+					.MergeIn(localMachineRegistrySettings)
+					.MergeIn(currentUserRegistrySettings)
+					.MergeIn(cmdLineSettings);
+
+			ValidateEmailSettings(settings);
+			return settings;
+		}
+
+		private static EmailSettings GetSystemSettings()
+		{
+			var hostName = Dns.GetHostEntry("localhost").HostName;
+			var from = new MailAddress($"{Environment.UserName}@{hostName}", Environment.UserName);
+			return new EmailSettings(from: from);
+		}
+
+		private static EmailSettings GetRegistrySettings(RegistryKey root)
+		{
+			string host = null;
+			MailAddress from = null;
+			MailAddress to = null;
+
+			try
+			{
+				using (var key = root.OpenSubKey(RegistryKeyPath))
 				{
-					return new MailAddress(address);
-				}
-				catch (FormatException)
-				{
-					throw new CommandLineArgumentException($"Invalid e-mail address: \"{address}\"");
+					if (key != null)
+					{
+						host = key.GetValue("Host", null) as string;
+
+						if (key.GetValue("From", null) is string fromString)
+							TryParseAddress(fromString, out from);
+
+						if (key.GetValue("To", null) is string toString)
+							TryParseAddress(toString, out to);
+					}
 				}
 			}
+			catch (System.Security.SecurityException)
+			{
+			}
+			catch (System.IO.IOException)
+			{
+			}
+			catch (UnauthorizedAccessException)
+			{
+			}
+
+			return new EmailSettings(host, from, to);
 		}
 
 		private static void ValidateEmailSettings(EmailSettings emailSettings)

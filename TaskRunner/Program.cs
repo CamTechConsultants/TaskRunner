@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -110,12 +111,19 @@ namespace TaskRunner
 			process.OutputDataReceived += (_, e) => HandleOutput(e.Data);
 			process.ErrorDataReceived += (_, e) => HandleOutput(e.Data);
 
-			process.Start();
-			process.BeginOutputReadLine();
-			process.BeginErrorReadLine();
-			process.WaitForExit();
+			try
+			{
+				process.Start();
+				process.BeginOutputReadLine();
+				process.BeginErrorReadLine();
+				process.WaitForExit();
 
-			return new RunResult(process.ExitCode, output.ToString());
+				return new RunResult(process.ExitCode, output.ToString());
+			}
+			catch (Win32Exception w32e)
+			{
+				return new RunResult(1, $"Failed to start the task: {w32e.Message}");
+			}
 
 
 			void HandleOutput(string text)

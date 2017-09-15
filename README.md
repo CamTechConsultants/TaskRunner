@@ -7,7 +7,7 @@ TaskRunner launches an program with and captures any output. If there is any out
 ## Example use
 
 ```
-TaskRunner -t "Admin <administrator@example.com>" -- perl MyBackupScript.pl
+TaskRunner -t "Admin <administrator@example.com>" -- MyBackupScript.pl
 ```
 
 ## Switches

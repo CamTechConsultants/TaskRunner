@@ -98,8 +98,8 @@ namespace TaskRunner
 			{
 				StartInfo = new ProcessStartInfo()
 				{
-					FileName = args.First(),
-					Arguments = EscapeArguments(),
+					FileName = "cmd.exe",
+					Arguments = $"/C \"{EscapeArguments()}\"",
 					CreateNoWindow = true,
 					UseShellExecute = false,
 					RedirectStandardError = true,
@@ -140,7 +140,7 @@ namespace TaskRunner
 				var buf = new StringBuilder();
 
 				bool first = true;
-				foreach (var arg in args.Skip(1))
+				foreach (var arg in args)
 				{
 					if (first)
 						first = false;

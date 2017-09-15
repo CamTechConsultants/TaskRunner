@@ -10,14 +10,18 @@ namespace TaskRunner
 {
 	struct RunResult
 	{
+		private readonly string m_output;
+
+
 		public int ExitCode { get; }
 
-		public string Output { get; }
+		public string Output => m_output ?? "";
+
 
 		public RunResult(int exitCode, string output)
 		{
 			ExitCode = exitCode;
-			Output = output;
+			m_output = output;
 		}
 
 		public override string ToString()

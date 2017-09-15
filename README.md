@@ -12,6 +12,12 @@ TaskRunner -t "Admin <administrator@example.com>" -- MyBackupScript.pl
 
 ## Switches
 
+- ```-s``` *mode* or ```--send``` *mode*  
+Specify when to send an e-mail. *Mode* can be one of three values:
+  - ```Always```- send an e-mail whether no matter what the result of the task.
+  - ```OnFailure``` - send an e-mail only if the task exits with a non-zero exit code.
+  - ```OnFailureOrOutput``` - send an e-mail if the task exits with a non-zero exit code, or if it prints any output to either stderr or stdout.
+
 - ```-h``` *host* or ```--host``` *host*  
 Specify the SMTP host. Currently only unauthenticated connections on port 25 are supported.
 

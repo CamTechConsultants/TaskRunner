@@ -3,6 +3,7 @@
  * Copyright (c) Midas Yellow Ltd. All rights reserved.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
@@ -29,6 +30,11 @@ namespace TaskRunner
 		/// Should the supplied e-mail settings be written to the registry for future use?
 		/// </summary>
 		public bool ConfigureEmail { get; private set; }
+
+		/// <summary>
+		/// Gets a value indicating under what circumstances an e-mail should be sent.
+		/// </summary>
+		public SendMode SendMode { get; private set; } = SendMode.OnFailureOrOutput;
 
 
 		public Switches(string[] args)
@@ -62,6 +68,10 @@ namespace TaskRunner
 
 				switch (arg)
 				{
+					case "-s":
+					case "--send":
+						SendMode = ParseSendMode(ShiftNextArg());
+						break;
 					case "-h":
 					case "--host":
 						host = ShiftNextArg();
@@ -98,6 +108,19 @@ namespace TaskRunner
 
 			if (!ConfigureEmail && (m_targetStart >= m_args.Length || m_targetStart <= 0))
 				throw new CommandLineArgumentException("No program to run was specified");
+		}
+
+		private static SendMode ParseSendMode(string value)
+		{
+			if (Enum.TryParse<SendMode>(value, ignoreCase: true, result: out SendMode mode))
+			{
+				return mode;
+			}
+			else
+			{
+				var validList = String.Join(", ", Enum.GetNames(typeof(SendMode)));
+				throw new CommandLineArgumentException($"Invalid send mode: '{value}'. Must be one of {validList}");
+			}
 		}
 	}
 }

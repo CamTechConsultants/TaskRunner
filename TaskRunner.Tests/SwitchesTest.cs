@@ -16,6 +16,49 @@ namespace TaskRunner.Tests
 	public class SwitchesTest
 	{
 		[TestMethod]
+		public void SendModeSwitch_Invalid_ThrowsCommandLineArgumentException()
+		{
+			var args = new[] { "-s", "foo", "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			Should.Throw<CommandLineArgumentException>(() => switches.Parse())
+					.Message.ShouldContain("Invalid send mode");
+		}
+
+		[TestMethod]
+		public void SendModeSwitch_ValidValueInCorrectCase_ReturnsValue()
+		{
+			var args = new[] { "-s", "Always", "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.SendMode.ShouldBe(SendMode.Always);
+		}
+
+		[TestMethod]
+		public void SendModeSwitch_ValidValueInIncorrectCase_ReturnsValue()
+		{
+			var args = new[] { "-s", "onFailurE", "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.SendMode.ShouldBe(SendMode.OnFailure);
+		}
+
+		[TestMethod]
+		public void SendModeSwitch_NotSpecified_DefaultIsOnFailureOrOutput()
+		{
+			var args = new[] { "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.SendMode.ShouldBe(SendMode.OnFailureOrOutput);
+		}
+
+		[TestMethod]
 		public void NoMailSettings_EmailSettingsNotNull()
 		{
 			var args = new[] { "--", "cmd.exe" };

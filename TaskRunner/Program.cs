@@ -37,7 +37,7 @@ namespace TaskRunner
 
 				var result = RunProcess(switches.TargetCommandLine);
 
-				if (result.ExitCode != 0 || result.Output.Length > 0)
+				if (ShouldSend(switches, result))
 					SendEmail(emailSettings, result, switches.TargetCommandLine);
 
 				return result.ExitCode;
@@ -51,6 +51,20 @@ namespace TaskRunner
 			{
 				Console.Error.WriteLine($"An unexpected exception occurred: {e}");
 				return 1;
+			}
+		}
+
+		private static bool ShouldSend(Switches switches, RunResult result)
+		{
+			switch (switches.SendMode)
+			{
+				case SendMode.Always:
+				default:
+					return true;
+				case SendMode.OnFailure:
+					return result.ExitCode != 0;
+				case SendMode.OnFailureOrOutput:
+					return result.ExitCode != 0 || result.Output.Length > 0;
 			}
 		}
 

@@ -177,6 +177,17 @@ namespace TaskRunner.Tests
 		}
 
 		[TestMethod]
+		public void ConfigureSwitch_NoTargetCommand_NoTargetCommandLine()
+		{
+			var args = new[] { "--configure", "-h", "mail.example.com" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.TargetCommandLine.ShouldBeEmpty();
+		}
+
+		[TestMethod]
 		public void NoDoubleDash_ThrowsCommandLineArgsException()
 		{
 			var args = new[] { "-h", "mail.example.com", "cmd.exe" };

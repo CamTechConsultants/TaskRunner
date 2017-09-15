@@ -52,17 +52,17 @@ namespace TaskRunner
 			MailAddress from = null;
 			MailAddress to = null;
 
-			for (int i = 0; i < m_args.Length; i++)
+			int i;
+			for (i = 0; i < m_args.Length; i++)
 			{
 				string arg = m_args[i];
 
 				if (!arg.StartsWith("-"))
-				{
 					throw new CommandLineArgumentException($"Unrecognised switch: \"{arg}\"");
-				}
-				else if (arg == "--")
+
+				if (arg == "--")
 				{
-					m_targetStart = i + 1;
+					i++;
 					break;
 				}
 
@@ -103,6 +103,8 @@ namespace TaskRunner
 					return m_args[++i];
 				}
 			}
+
+			m_targetStart = i;
 
 			EmailSettings = new EmailSettings(host: host, from: from, to: to);
 

@@ -98,6 +98,7 @@ namespace TaskRunner
 				Body = body
 			};
 			msg.To.Add(emailSettings.To);
+			msg.Headers.Add("X-TaskRunner-Source", Environment.MachineName);
 			client.Send(msg);
 
 			string MakeCommandLine()

@@ -25,7 +25,7 @@ namespace TaskRunner
 		public EmailSettings EmailSettings { get; private set; } = new EmailSettings();
 
 		public IEnumerable<string> TargetCommandLine => m_args.Skip(m_targetStart);
-		
+
 		/// <summary>
 		/// Should the supplied e-mail settings be written to the registry for future use?
 		/// </summary>
@@ -114,7 +114,7 @@ namespace TaskRunner
 
 		private static SendMode ParseSendMode(string value)
 		{
-			if (Enum.TryParse<SendMode>(value, ignoreCase: true, result: out SendMode mode))
+			if (Enum.TryParse(value, ignoreCase: true, result: out SendMode mode))
 			{
 				return mode;
 			}

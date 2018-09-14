@@ -16,7 +16,7 @@ using Microsoft.Win32;
 
 namespace TaskRunner
 {
-	class Program
+	static class Program
 	{
 		private const string RegistryKeyPath = @"SOFTWARE\CTC\TaskRunner";
 
@@ -44,7 +44,7 @@ namespace TaskRunner
 			}
 			catch (CommandLineArgumentException clae)
 			{
-				Console.Error.WriteLine($"{clae.Message}");
+				Console.Error.WriteLine(clae.Message);
 				return 1;
 			}
 			catch (Exception e)
@@ -148,7 +148,7 @@ namespace TaskRunner
 					lock (output)
 						output.AppendLine(text);
 				}
-			};
+			}
 
 			string EscapeArguments()
 			{

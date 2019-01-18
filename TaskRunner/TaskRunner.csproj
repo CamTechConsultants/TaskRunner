@@ -49,6 +49,8 @@
     <Compile Include="CommandLineArgumentException.cs" />
     <Compile Include="Email.cs" />
     <Compile Include="EmailSettings.cs" />
+    <Compile Include="ExitCodeRange.cs" />
+    <Compile Include="ExitCodeRangeExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunResult.cs" />

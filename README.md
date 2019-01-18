@@ -18,6 +18,9 @@ Specify when to send an e-mail. *Mode* can be one of three values:
   - ```OnFailure``` - send an e-mail only if the task exits with a non-zero exit code.
   - ```OnFailureOrOutput``` - send an e-mail if the task exits with a non-zero exit code, or if it prints any output to either stderr or stdout.
 
+- ```-e``` *exitcodes* or ```--exitcode``` *exitcodes*  
+Specify what exit codes should be considered as successful. *Exitcodes* is a comma separated list of either single values or ranges separated with a hyphen. It cannot contain any spaces.
+
 - ```-h``` *host* or ```--host``` *host*  
 Specify the SMTP host. Currently only unauthenticated connections on port 25 are supported.
 

@@ -56,15 +56,17 @@ namespace TaskRunner
 
 		private static bool ShouldSend(Switches switches, RunResult result)
 		{
+			bool isFailureExitCode = !switches.SuccessExitCodes.Contains(result.ExitCode);
+
 			switch (switches.SendMode)
 			{
 				case SendMode.Always:
 				default:
 					return true;
 				case SendMode.OnFailure:
-					return result.ExitCode != 0;
+					return isFailureExitCode;
 				case SendMode.OnFailureOrOutput:
-					return result.ExitCode != 0 || result.Output.Length > 0;
+					return isFailureExitCode || result.Output.Length > 0;
 			}
 		}
 

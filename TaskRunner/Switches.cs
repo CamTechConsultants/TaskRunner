@@ -16,6 +16,7 @@ namespace TaskRunner
 	class Switches
 	{
 		private readonly string[] m_args;
+		private readonly List<ExitCodeRange> m_successExitCodes = new List<ExitCodeRange>();
 		private int m_targetStart = -1;
 
 
@@ -35,6 +36,20 @@ namespace TaskRunner
 		/// Gets a value indicating under what circumstances an e-mail should be sent.
 		/// </summary>
 		public SendMode SendMode { get; private set; } = SendMode.OnFailureOrOutput;
+
+		/// <summary>
+		/// Gets a list of exit codes that indicate success.
+		/// </summary>
+		public IEnumerable<ExitCodeRange> SuccessExitCodes
+		{
+			get
+			{
+				if (m_successExitCodes.Count == 0)
+					return new[] { new ExitCodeRange(0) };
+				else
+					return m_successExitCodes;
+			}
+		}
 
 
 		public Switches(string[] args)
@@ -71,6 +86,10 @@ namespace TaskRunner
 					case "-s":
 					case "--send":
 						SendMode = ParseSendMode(ShiftNextArg());
+						break;
+					case "-e":
+					case "--exitcode":
+						m_successExitCodes.AddRange(ExitCodeRange.ParseList(ShiftNextArg()));
 						break;
 					case "-h":
 					case "--host":

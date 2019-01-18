@@ -58,6 +58,41 @@ namespace TaskRunner.Tests
 			switches.SendMode.ShouldBe(SendMode.OnFailureOrOutput);
 		}
 
+
+		[TestMethod]
+		public void ExitCodeSwitch_NotSpecified_DefaultsToZero()
+		{
+			var args = new[] { "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.SuccessExitCodes.ShouldBe(new[] { new ExitCodeRange(0) });
+		}
+
+		[TestMethod]
+		public void ExitCodeSwitch_Specified_ReturnsParsedListOfValues()
+		{
+			var args = new[] { "--exitcode", "1,3", "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.SuccessExitCodes.ShouldBe(new[] { new ExitCodeRange(1), new ExitCodeRange(3) });
+		}
+
+		[TestMethod]
+		public void ExitCodeSwitch_SpecifiedTwice_ReturnsConcatenatedParsedListOfValues()
+		{
+			var args = new[] { "--exitcode", "1-3", "-e", "7", "--", "cmd.exe" };
+			var switches = new Switches(args);
+
+			switches.Parse();
+
+			switches.SuccessExitCodes.ShouldBe(new[] { new ExitCodeRange(1, 3), new ExitCodeRange(7) }, ignoreOrder: true);
+		}
+
+
 		[TestMethod]
 		public void NoMailSettings_EmailSettingsNotNull()
 		{
